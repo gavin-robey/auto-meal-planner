@@ -12,11 +12,14 @@
     "start": "node ./dist/"
   },
   "dependencies": {
+    "@trpc/client": "^11.0.0",
+    "@trpc/server": "^11.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.11",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@tsconfig/react-native": "^3.0.5",
