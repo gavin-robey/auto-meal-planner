@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@tsconfig/react-native": "^3.0.5",
-    "@types/express": "^5.0.1"
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.13"
   }
 }
