@@ -3,10 +3,13 @@ import type { Application } from 'express';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from './routes';
 import { createContext } from './lib/trpc';
-import "./db/index";
+import "src/db";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app : Application = express();
 const port = process.env.PORT || 8000
+
 
 app.use(
     createExpressMiddleware({

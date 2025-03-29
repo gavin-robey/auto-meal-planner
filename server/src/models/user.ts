@@ -1,12 +1,5 @@
-// import { compare, genSalt, hash } from "bcrypt";
+import { compare, genSalt, hash } from "bcrypt";
 import { Schema, Types, model } from "mongoose";
-
-
-// export type Token = {
-//   token: string;
-//   location: string;
-//   createdAt: string;
-// };
 
 export interface UserDocument extends Document {
   _id: string;
@@ -14,13 +7,8 @@ export interface UserDocument extends Document {
   password: string;
   name: string;
   verified: boolean;
-//   tokens: Token[];
-//   roles: TariffloRoles[];
   createdAt: string;
   updatedAt: string;
-//   stripeId: string;
-//   currentOrganization: Types.ObjectId;
-//   defaultOrganization: Types.ObjectId;
 //   oauthProvider?: string;
 //   oauthId?: string;
 //   twoStepVerification?: boolean;
@@ -36,11 +24,11 @@ export interface User {
   stripeId: string;
 }
 
-// interface Methods {
-//   comparePassword: (password: string) => Promise<boolean>;
-// }
+interface Methods {
+  comparePassword: (password: string) => Promise<boolean>;
+}
 
-const userSchema = new Schema<UserDocument>(
+const userSchema = new Schema<UserDocument, {}, Methods>(
   {
     email: {
       type: String,
@@ -64,17 +52,17 @@ const userSchema = new Schema<UserDocument>(
   { timestamps: true },
 );
 
-// userSchema.pre("save", async function (next) {
-//   if (this.isModified("password")) {
-//     const salt = await genSalt(10);
-//     this.password = await hash(this.password, salt);
-//   }
-//   next();
-// });
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const salt = await genSalt(10);
+    this.password = await hash(this.password, salt);
+  }
+  next();
+});
 
-// userSchema.methods.comparePassword = async function (password) {
-//   return await compare(password, this.password);
-// };
+userSchema.methods.comparePassword = async function (password: string) {
+  return await compare(password, this.password);
+};
 
 const UserModel = model("User", userSchema);
 export default UserModel;

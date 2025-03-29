@@ -14,9 +14,12 @@
   "dependencies": {
     "@trpc/client": "^11.0.0",
     "@trpc/server": "^11.0.0",
+    "bcrypt": "^5.1.1",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.13.0",
+    "mongoose": "^8.13.1",
+    "nodemailer": "^6.10.0",
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.11",
     "tsconfig-paths": "^4.2.0",
@@ -24,7 +27,9 @@
   },
   "devDependencies": {
     "@tsconfig/react-native": "^3.0.5",
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
-    "@types/node": "^22.13.13"
+    "@types/node": "^22.13.13",
+    "@types/nodemailer": "^6.4.17"
   }
 }
