@@ -41,7 +41,7 @@ export const createNewUser = async (email: string, password: string, name: strin
         }
 
         return {
-            message: "Check your inbox",
+            message: "Check your inbox!",
         };
     } catch (error) {
         console.error("Error creating new user:", error);
@@ -55,3 +55,29 @@ export const createNewUser = async (email: string, password: string, name: strin
         });
     }
 };
+
+export const verifyEmail = async(id: string, token: string) => {
+    try{
+        const authToken = await AuthVerificationToken.findOne({ owner: id })
+        if(!authToken){
+            throw new TRPCError({ code: "UNAUTHORIZED", message: "Authentication token does not exist"});
+        }
+
+        const isValid = await authToken.compareToken(token);
+        if (!isValid) {
+            throw new TRPCError({code: "UNAUTHORIZED",message: "Invalid verification token"});
+        }
+
+        await UserModel.findByIdAndUpdate(id, {verified: true})
+        await AuthVerificationToken.findByIdAndDelete(authToken._id)
+
+        return `Thanks for joining, you have been verified!`;
+    } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to verify email",
+            cause: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+}

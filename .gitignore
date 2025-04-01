@@ -38,3 +38,6 @@ logs/**/*.log
 # System files
 .DS_Store
 Thumbs.db
+
+# database
+db_data

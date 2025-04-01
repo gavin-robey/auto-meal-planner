@@ -5,6 +5,7 @@ export interface AuthVerificationTokenDocument extends Document {
     token: string;
     owner: Types.ObjectId;
     createdAt: Date;
+    compareToken: (token: string) => Promise<boolean>;
 }
 
 interface Methods {
