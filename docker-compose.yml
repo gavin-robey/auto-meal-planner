@@ -8,7 +8,7 @@ services:
     volumes:
       - ./server:/app
       - ./lib:/app/lib
-      - server_node_modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "8000:8000"
     env_file:

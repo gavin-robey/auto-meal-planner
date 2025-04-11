@@ -1,5 +1,6 @@
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 import type * as trpcExpress from '@trpc/server/adapters/express';
+import { isAuth } from 'src/middleware/auth';
 
 export const createContext = ({ req, res, }: trpcExpress.CreateExpressContextOptions) => {
     return { req, res };
@@ -8,13 +9,13 @@ export const createContext = ({ req, res, }: trpcExpress.CreateExpressContextOpt
 type Context = Awaited<ReturnType<typeof createContext>>
 export const trpc = initTRPC.context<Context>().create();
 
-// const isAuthenticated = trpc.middleware(async ({ ctx, next }) => {
-//     await isAuth(ctx.req, ctx.res)
-//     if (!ctx.req.user) {
-//       throw new ExtendedTRPCError("UNAUTHORIZED", "Unauthorized Access!")
-//     }
-//     return next();
-// })
+const isAuthenticated = trpc.middleware(async ({ ctx, next }) => {
+    await isAuth(ctx.req, ctx.res)
+    if (!ctx.req.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized Access!"})
+    }
+    return next();
+})
 
 // const isAdmin = trpc.middleware(async ({ ctx, next }) => {
 // if (!ctx.req.user.roles.includes(TariffloRoles.ADMIN)) {
@@ -34,5 +35,5 @@ export const trpc = initTRPC.context<Context>().create();
 
 // add private and admin privaleges
 export const publicProcedure = trpc.procedure
-export const privateProcedure = trpc.procedure
+export const privateProcedure = trpc.procedure.use(isAuthenticated)
 export const adminProcedure = trpc.procedure

@@ -18,13 +18,13 @@ export const sendVerification = async (email: string, link: string): Promise<voi
             <h1 style="color: #333;">Verify Your Email</h1>
             <p style="color: #666; font-size: 16px;">Please click the button below to verify your email address:</p>
             <a href="${link}" 
-               style="display: inline-block; 
-                      background-color: #007bff; 
-                      color: white; 
-                      padding: 12px 24px; 
-                      text-decoration: none; 
-                      border-radius: 5px; 
-                      margin: 20px 0;">
+                style="display: inline-block; 
+                        background-color: #007bff; 
+                        color: white; 
+                        padding: 12px 24px; 
+                        text-decoration: none; 
+                        border-radius: 5px; 
+                        margin: 20px 0;">
                 Verify Email
             </a>
             <p style="color: #999; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>

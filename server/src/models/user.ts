@@ -7,11 +7,9 @@ export interface UserDocument extends Document {
   password: string;
   name: string;
   verified: boolean;
+  tokens: string[];
   createdAt: string;
   updatedAt: string;
-//   oauthProvider?: string;
-//   oauthId?: string;
-//   twoStepVerification?: boolean;
 }
 
 export interface User {
@@ -20,8 +18,8 @@ export interface User {
   password?: string;
   name: string;
   verified: boolean;
+  tokens: string[];
   createdAt: string;
-  stripeId: string;
 }
 
 interface Methods {
@@ -47,7 +45,8 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
     verified: {
       type: Boolean,
       default: false,
-    }
+    },
+    tokens: [String]
   },
   { timestamps: true },
 );

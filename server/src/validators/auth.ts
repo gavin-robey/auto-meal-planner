@@ -33,3 +33,12 @@ export const verifyUserSchema = yup.object({
   id: yup.string().required("id is missing"),
   token: yup.string().required("token required")
 })
+
+export const signInSchema = yup.object({
+  ...email,
+  ...password,
+})
+
+export const emailSchema = yup.object({
+  ...email,
+});
