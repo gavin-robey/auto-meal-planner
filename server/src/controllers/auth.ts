@@ -168,3 +168,125 @@ export const getUserByEmail = async (email: string) => {
         });
     }
 };
+
+export const generateNewAuthToken = async (userId: string) => {
+    try {
+        await AuthVerificationToken.deleteMany({ owner: userId });
+        const token = crypto.randomBytes(32).toString("hex");
+        await AuthVerificationToken.create({
+            token,
+            owner: userId,
+        });
+
+        const link = `http://localhost:8000/verify?id=${userId}&token=${token}`;
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            throw new TRPCError({ code: "UNAUTHORIZED", message: "User not found" });
+        }
+
+        try {
+            await sendVerification(user.email, link);
+        } catch (error) {
+            console.error("Failed to send verification email:", error);
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to send verification email",
+                cause: error instanceof Error ? error.message : "Unknown error",
+            });
+        }
+
+        return {
+            token,
+            link,
+            message: "New authentication token generated successfully"
+        };
+    } catch (error) {
+        console.error("Error generating new auth token:", error);
+        throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to generate new authentication token",
+            cause: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+};
+
+export const refreshToken = async (refreshToken: string) => {
+    try {
+        const payload = jwt.verify(refreshToken, JWT_CONFIG.secret) as { id: string, email: string };
+        const user = await UserModel.findOne({ 
+            _id: payload.id,
+            tokens: refreshToken 
+        });
+
+        if (!user) {
+            await UserModel.findByIdAndUpdate(payload.id, { tokens: [] });
+            throw new TRPCError({ 
+                code: "UNAUTHORIZED", 
+                message: "Invalid refresh token. Please sign in again." 
+            });
+        }
+
+        const newAccessToken = jwt.sign(
+            { id: user._id, email: user.email },
+            JWT_CONFIG.secret,
+            { expiresIn: JWT_CONFIG.accessTokenExpiry }
+        );
+
+        const newRefreshToken = jwt.sign(
+            { id: user._id, email: user.email },
+            JWT_CONFIG.secret,
+            { expiresIn: JWT_CONFIG.refreshTokenExpiry }
+        );
+
+        user.tokens = user.tokens.filter(token => token !== refreshToken);
+        user.tokens.push(newRefreshToken);
+        
+        if (user.tokens.length > 5) {
+            user.tokens = user.tokens.slice(-5);
+        }
+
+        await user.save();
+
+        return {
+            tokens: {
+                access: newAccessToken,
+                refresh: newRefreshToken
+            },
+            message: "Tokens refreshed successfully"
+        };
+    } catch (error) {
+        if (error instanceof jwt.TokenExpiredError) {
+            throw new TRPCError({ 
+                code: "UNAUTHORIZED", 
+                message: "Refresh token expired. Please sign in again." 
+            });
+        }
+        if (error instanceof jwt.JsonWebTokenError) {
+            throw new TRPCError({ 
+                code: "UNAUTHORIZED", 
+                message: "Invalid refresh token. Please sign in again." 
+            });
+        }
+        if (error instanceof TRPCError) {
+            throw error;
+        }
+        throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to refresh tokens",
+            cause: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+};
+
+export const signOut = async (id: string, refreshToken: string) => {
+    const user = await UserModel.findOne({ 
+        _id: id, 
+        tokens: refreshToken 
+    });
+    if (!user)
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized Request, user not found!"})
+
+    user.tokens = user.tokens.filter(token => token !== refreshToken);
+    await user.save();
+    return { message: "Signed out successfully!" };
+};

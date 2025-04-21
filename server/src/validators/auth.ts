@@ -42,3 +42,11 @@ export const signInSchema = yup.object({
 export const emailSchema = yup.object({
   ...email,
 });
+
+export const refreshTokenSchema = yup.object({
+    refreshToken: yup.string().required("Refresh token is required")
+});
+
+export const signOutSchema = yup.object({
+    refreshToken: yup.string().required("Refresh token is required")
+});

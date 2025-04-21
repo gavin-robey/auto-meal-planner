@@ -1,6 +1,6 @@
-import { createNewUser, signIn, verifyEmail, getUserByEmail } from "src/controllers/auth";
+import { createNewUser, signIn, verifyEmail, getUserByEmail, generateNewAuthToken, refreshToken, signOut } from "src/controllers/auth";
 import { privateProcedure, publicProcedure, trpc } from "src/lib/trpc";
-import { newUserSchema, verifyUserSchema, signInSchema, emailSchema } from "src/validators/auth";
+import { newUserSchema, verifyUserSchema, signInSchema, emailSchema, refreshTokenSchema } from "src/validators/auth";
 
 export const authRouter = trpc.router({
     signUp: publicProcedure
@@ -22,5 +22,19 @@ export const authRouter = trpc.router({
         .input(emailSchema)
         .mutation(async ({ input }) => {
             return getUserByEmail(input.email);
+        }),
+    generateToken: privateProcedure
+        .query(async ({ ctx }) => {
+            return generateNewAuthToken(ctx.req.user.id);
+        }),
+    refreshToken: publicProcedure
+        .input(refreshTokenSchema)
+        .mutation(async ({ input }) => {
+            return refreshToken(input.refreshToken);
+        }),
+    signOut: privateProcedure
+        .input(refreshTokenSchema)
+        .mutation(async ({ ctx, input }) => {
+            return signOut(ctx.req.user.id, input.refreshToken);
         }),
 });

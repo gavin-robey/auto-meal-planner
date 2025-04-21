@@ -7,7 +7,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (!token || !id) {
         messageElement.textContent = 'Invalid verification link';
-        messageElement.classList.add('error');
         verifyButton.disabled = true;
         return;
     }
@@ -17,7 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
             verifyButton.disabled = true;
             messageElement.textContent = 'Verifying your email...';
 
-            const response = await fetch('http://localhost:8000/auth/verify', {
+            const response = await fetch('http://localhost:8000/auth.verify', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,17 +33,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error.message);
             }
 
-            messageElement.textContent = data.result || "Email verified successfully!";
-            messageElement.classList.add('success');
+            messageElement.textContent = "Email verified successfully!";
             verifyButton.style.display = 'none';
 
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 3000);
-
         } catch (error) {
-            messageElement.textContent = error.message || 'Failed to verify email';
-            messageElement.classList.add('error');
+            messageElement.textContent = 'Failed to verify email';
             verifyButton.disabled = false;
         }
     });
